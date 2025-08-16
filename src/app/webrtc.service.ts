@@ -52,14 +52,29 @@ export class WebrtcService {
   private async createPeerConnection() {
     this.peerConnection = new RTCPeerConnection({
       iceServers: [
-        {
-          urls: 'stun:stun.l.google.com:19302'
-        },
-        {
-          urls: 'turn:openrelay.metered.ca:80?transport=udp',
-          username: 'openrelayproject',
-          credential: 'openrelayproject'
-        }
+          {
+            urls: "stun:stun.relay.metered.ca:80",
+          },
+          {
+            urls: "turn:global.relay.metered.ca:80",
+            username: "8b9df8ebb1f8afcc4716a4bc",
+            credential: "K0toYKTR1NH8lVXj",
+          },
+          {
+            urls: "turn:global.relay.metered.ca:80?transport=tcp",
+            username: "8b9df8ebb1f8afcc4716a4bc",
+            credential: "K0toYKTR1NH8lVXj",
+          },
+          {
+            urls: "turn:global.relay.metered.ca:443",
+            username: "8b9df8ebb1f8afcc4716a4bc",
+            credential: "K0toYKTR1NH8lVXj",
+          },
+          {
+            urls: "turns:global.relay.metered.ca:443?transport=tcp",
+            username: "8b9df8ebb1f8afcc4716a4bc",
+            credential: "K0toYKTR1NH8lVXj",
+          },
       ]
     });
 
