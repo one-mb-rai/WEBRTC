@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  socketEndpoint: 'https://webrtc-server.onrender.com'
+  socketEndpoint: 'https://webrtc-e3gc.onrender.com'
 };
