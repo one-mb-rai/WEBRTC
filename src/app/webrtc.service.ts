@@ -26,13 +26,18 @@ export class WebrtcService {
   constructor() {
     this.userId = this.generateUserId();
     this.socket = io(environment.socketEndpoint);
-    this.socket.emit('register', { userId: this.userId, userName: this.userName });
     this.socket.on('message', (message) => {
       this.handleMessage(message);
     });
     this.socket.on('users-updated', (users: ConnectedUser[]) => {
       this.users$.next(users);
     });
+  }
+
+  initializeUser(userId: string, userName: string) {
+    this.userId = userId;
+    this.userName = userName;
+    this.socket.emit('register', { userId: this.userId, userName: this.userName });
   }
 
   setUserName(name: string) {
@@ -49,6 +54,11 @@ export class WebrtcService {
       iceServers: [
         {
           urls: 'stun:stun.l.google.com:19302'
+        },
+        {
+          urls: 'turn:openrelay.metered.ca:80?transport=udp',
+          username: 'openrelayproject',
+          credential: 'openrelayproject'
         }
       ]
     });
