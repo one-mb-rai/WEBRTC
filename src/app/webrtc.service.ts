@@ -3,26 +3,41 @@ import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { BehaviorSubject } from 'rxjs';
 
+export interface ConnectedUser {
+  id: string;
+  name: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class WebrtcService {
   private socket: Socket;
   public userId: string;
+  public userName: string = '';
   private remoteUserId!: string;
   private peerConnection!: RTCPeerConnection;
   private iceCandidateQueue: RTCIceCandidateInit[] = [];
   public localStream$ = new BehaviorSubject<MediaStream | null>(null);
   public remoteStream$ = new BehaviorSubject<MediaStream | null>(null);
   public incomingCall$ = new BehaviorSubject<boolean>(false);
+  public users$ = new BehaviorSubject<ConnectedUser[]>([]);
 
   constructor() {
     this.userId = this.generateUserId();
     this.socket = io(environment.socketEndpoint);
-    this.socket.emit('register', this.userId);
+    this.socket.emit('register', { userId: this.userId, userName: this.userName });
     this.socket.on('message', (message) => {
       this.handleMessage(message);
     });
+    this.socket.on('users-updated', (users: ConnectedUser[]) => {
+      this.users$.next(users);
+    });
+  }
+
+  setUserName(name: string) {
+    this.userName = name;
+    this.socket.emit('register', { userId: this.userId, userName: this.userName });
   }
 
   private generateUserId(): string {

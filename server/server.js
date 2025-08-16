@@ -8,35 +8,45 @@ const io = require('socket.io')(http, {
 });
 const port = process.env.PORT || 3000;
 
-const users = {};
+const users = {}; // Stores { userId: { socketId: string, userName: string } }
 
 app.use(express.static('www'));
 
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  socket.on('register', (userId) => {
-    users[userId] = socket.id;
-    console.log('registered user:', userId, 'with socket id:', socket.id);
+  const emitUserList = () => {
+    const connectedUsers = Object.keys(users).map(id => ({
+      id: id,
+      name: users[id].userName
+    }));
+    io.emit('users-updated', connectedUsers);
+  };
+
+  socket.on('register', ({ userId, userName }) => {
+    users[userId] = { socketId: socket.id, userName: userName };
+    console.log('registered user:', userId, 'with socket id:', socket.id, 'and name:', userName);
+    emitUserList();
   });
 
   socket.on('disconnect', () => {
     for (let userId in users) {
-      if (users[userId] === socket.id) {
+      if (users[userId].socketId === socket.id) {
         delete users[userId];
         break;
       }
     }
     console.log('user disconnected');
+    emitUserList();
   });
 
   socket.on('message', (message) => {
     console.log('message: ', message);
-    const remoteSocketId = users[message.remoteUserId];
+    const remoteSocketId = users[message.remoteUserId]?.socketId;
     if (remoteSocketId) {
       let senderUserId;
       for (let userId in users) {
-        if (users[userId] === socket.id) {
+        if (users[userId].socketId === socket.id) {
           senderUserId = userId;
           break;
         }

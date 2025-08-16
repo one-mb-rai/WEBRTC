@@ -3,7 +3,7 @@ import { WebrtcService } from '../webrtc.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton } from '@ionic/angular/standalone';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton, IonList } from '@ionic/angular/standalone';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -11,16 +11,27 @@ import { Subscription } from 'rxjs';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton, FormsModule, CommonModule],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonItem, IonLabel, IonInput, IonButton, FormsModule, CommonModule, IonList],
 })
 export class HomePage implements OnInit, OnDestroy {
   public userId: string;
-  public remoteUserId: string;
+  public userName: string = '';
+  public connectedUsers: { id: string; name: string }[] = [];
   private incomingCallSubscription!: Subscription;
+  private usersSubscription!: Subscription;
 
   constructor(private webrtc: WebrtcService, private router: Router) {
     this.userId = this.webrtc.userId;
-    this.remoteUserId = '';
+    this.userName = this.webrtc.userName;
+  }
+
+  updateUserName() {
+    this.webrtc.setUserName(this.userName);
+  }
+
+  callUser(remoteUserId: string) {
+    this.webrtc.call(remoteUserId);
+    this.router.navigate(['/call']);
   }
 
   ngOnInit() {
@@ -29,16 +40,20 @@ export class HomePage implements OnInit, OnDestroy {
         this.router.navigate(['/call']);
       }
     });
+
+    this.usersSubscription = this.webrtc.users$.subscribe(users => {
+      this.connectedUsers = users.filter(user => user.id !== this.userId);
+    });
   }
 
   ngOnDestroy() {
     if (this.incomingCallSubscription) {
       this.incomingCallSubscription.unsubscribe();
     }
+    if (this.usersSubscription) {
+      this.usersSubscription.unsubscribe();
+    }
   }
 
-  async call() {
-    await this.webrtc.call(this.remoteUserId);
-    this.router.navigate(['/call']);
-  }
+
 }

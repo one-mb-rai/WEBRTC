@@ -14,11 +14,18 @@
   </ion-header>
 
   <div id="container">
-    <p>Your User ID: {{ userId }}</p>
     <ion-item>
-      <ion-label position="floating">Remote User ID</ion-label>
-      <ion-input type="text" [(ngModel)]="remoteUserId"></ion-input>
+      <ion-label position="floating">Your Name</ion-label>
+      <ion-input type="text" [(ngModel)]="userName" (ionChange)="updateUserName()"></ion-input>
     </ion-item>
-    <ion-button (click)="call()">Call</ion-button>
+    <p>Your User ID: <span *ngIf="userName">{{ userName }} (</span>{{ userId }}<span *ngIf="userName">)</span></p>
+
+    <h2>Connected Users:</h2>
+    <ion-list>
+      <ion-item *ngFor="let user of connectedUsers">
+        <ion-label>{{ user.name }} ({{ user.id }})</ion-label>
+        <ion-button (click)="callUser(user.id)">Call</ion-button>
+      </ion-item>
+    </ion-list>
   </div>
 </ion-content>
