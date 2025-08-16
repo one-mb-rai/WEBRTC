@@ -20,24 +20,27 @@ io.on('connection', (socket) => {
       id: id,
       name: users[id].userName
     }));
+    console.log('Emitting users-updated:', connectedUsers);
     io.emit('users-updated', connectedUsers);
   };
 
   socket.on('register', ({ userId, userName }) => {
+    console.log('Users before register:', users);
     users[userId] = { socketId: socket.id, userName: userName };
     console.log('registered user:', userId, 'with socket id:', socket.id, 'and name:', userName);
+    console.log('Users after register:', users);
     emitUserList();
   });
 
   socket.on('disconnect', () => {
-    for (let userId in users) {
-      if (users[userId].socketId === socket.id) {
-        delete users[userId];
-        break;
-      }
+    console.log('Users before disconnect:', users);
+    const disconnectedUserId = Object.keys(users).find(userId => users[userId].socketId === socket.id);
+    if (disconnectedUserId) {
+      delete users[disconnectedUserId];
+      console.log('user disconnected:', disconnectedUserId);
+      console.log('Users after disconnect:', users);
+      emitUserList();
     }
-    console.log('user disconnected');
-    emitUserList();
   });
 
   socket.on('message', (message) => {
