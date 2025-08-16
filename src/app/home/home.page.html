@@ -14,57 +14,11 @@
   </ion-header>
 
   <div id="container">
-    <ion-segment [(ngModel)]="selectedTab" value="video">
-      <ion-segment-button value="video">
-        <ion-icon name="videocam"></ion-icon>
-        <ion-label>Video Call</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="audio">
-        <ion-icon name="call"></ion-icon>
-        <ion-label>Audio Call</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="file">
-        <ion-icon name="folder"></ion-icon>
-        <ion-label>File Sharing</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-
-    <div [ngSwitch]="selectedTab">
-      <div *ngSwitchCase="'video'">
-        <ion-item>
-          <ion-label position="floating">Your Phone Number (10 digits)</ion-label>
-          <ion-input type="tel" [(ngModel)]="localPhoneNumber" maxlength="10" (ionChange)="validatePhoneNumber()"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating">Remote Phone Number (10 digits)</ion-label>
-          <ion-input type="tel" [(ngModel)]="remotePhoneNumber" maxlength="10"></ion-input>
-        </ion-item>
-        <ion-button expand="full" (click)="call('video')" [disabled]="!isPhoneNumberValid">Video Call</ion-button>
-      </div>
-
-      <div *ngSwitchCase="'audio'">
-        <ion-item>
-          <ion-label position="floating">Your Phone Number (10 digits)</ion-label>
-          <ion-input type="tel" [(ngModel)]="localPhoneNumber" maxlength="10" (ionChange)="validatePhoneNumber()"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating">Remote Phone Number (10 digits)</ion-label>
-          <ion-input type="tel" [(ngModel)]="remotePhoneNumber" maxlength="10"></ion-input>
-        </ion-item>
-        <ion-button expand="full" (click)="call('audio')" [disabled]="!isPhoneNumberValid">Audio Call</ion-button>
-      </div>
-
-      <div *ngSwitchCase="'file'">
-        <ion-item>
-          <ion-label position="floating">Your Phone Number (10 digits)</ion-label>
-          <ion-input type="tel" [(ngModel)]="localPhoneNumber" maxlength="10" (ionChange)="validatePhoneNumber()"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="floating">Remote Phone Number (10 digits)</ion-label>
-          <ion-input type="tel" [(ngModel)]="remotePhoneNumber" maxlength="10"></ion-input>
-        </ion-item>
-        <ion-button expand="full" (click)="call('file')" [disabled]="!isPhoneNumberValid">File Sharing</ion-button>
-      </div>
-    </div>
+    <p>Your User ID: {{ userId }}</p>
+    <ion-item>
+      <ion-label position="floating">Remote User ID</ion-label>
+      <ion-input type="text" [(ngModel)]="remoteUserId"></ion-input>
+    </ion-item>
+    <ion-button (click)="call()">Call</ion-button>
   </div>
 </ion-content>
