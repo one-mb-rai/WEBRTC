@@ -11,6 +11,7 @@ export class WebrtcService {
   public userId: string;
   private remoteUserId!: string;
   private peerConnection!: RTCPeerConnection;
+  private iceCandidateQueue: RTCIceCandidateInit[] = [];
   public localStream$ = new BehaviorSubject<MediaStream | null>(null);
   public remoteStream$ = new BehaviorSubject<MediaStream | null>(null);
   public incomingCall$ = new BehaviorSubject<boolean>(false);
@@ -88,6 +89,7 @@ export class WebrtcService {
     this.incomingCall$.next(true);
     await this.createPeerConnection();
     await this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer.offer));
+    this.processIceCandidateQueue();
     const answer = await this.peerConnection.createAnswer();
     await this.peerConnection.setLocalDescription(answer);
     this.sendMessage({ type: 'answer', answer: answer }, this.remoteUserId);
@@ -95,10 +97,25 @@ export class WebrtcService {
 
   private async handleAnswer(answer: any) {
     await this.peerConnection.setRemoteDescription(new RTCSessionDescription(answer.answer));
+    this.processIceCandidateQueue();
   }
 
   private async handleCandidate(candidate: any) {
-    await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate.candidate));
+    const iceCandidate = new RTCIceCandidate(candidate.candidate);
+    if (this.peerConnection && this.peerConnection.remoteDescription) {
+      await this.peerConnection.addIceCandidate(iceCandidate);
+    } else {
+      this.iceCandidateQueue.push(iceCandidate);
+    }
+  }
+
+  private async processIceCandidateQueue() {
+    while (this.iceCandidateQueue.length > 0) {
+      const candidate = this.iceCandidateQueue.shift();
+      if (candidate) {
+        await this.peerConnection.addIceCandidate(candidate);
+      }
+    }
   }
 
   public async call(remoteUserId: string) {
