@@ -24,9 +24,12 @@ export class CallPage implements AfterViewInit {
       }
     });
 
-    this.webrtc.remoteStream$.subscribe(stream => {
-      if (stream && this.remoteVideo) {
-        this.remoteVideo.nativeElement.srcObject = stream;
+    this.webrtc.remoteStreams$.subscribe(streamsMap => {
+      // Assuming for simplicity that we only display the first remote stream
+      // In a multi-party call, you would iterate through the map and create multiple video elements
+      const firstRemoteStream = streamsMap.values().next().value;
+      if (firstRemoteStream && this.remoteVideo) {
+        this.remoteVideo.nativeElement.srcObject = firstRemoteStream;
       }
     });
   }
